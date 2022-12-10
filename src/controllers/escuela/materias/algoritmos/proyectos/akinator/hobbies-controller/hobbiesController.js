@@ -1,4 +1,4 @@
-const HobbiesModel = require('../../models/hobbies-model/hobbiesModel');
+const HobbiesModel = require('../../../../../../../models/escuela/materias/algortimos/proyectos/akinator/hobbies-model/hobbiesModel');
 
 const saveHobbies = async (data) => {
     try {
@@ -17,7 +17,7 @@ const saveHobbies = async (data) => {
 
 const getHobbies = async () => {
     try {
-        const hobbies = await HobbiesModel.find({}, { _id: 0, __v: 0 });
+        const hobbies = await HobbiesModel.find({}, { _id: 0, __v: 0 }).sort({name:1});
         return hobbies;
     } catch (err) {
         return err;

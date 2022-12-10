@@ -8,8 +8,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
 // rutas
-const hobbieRoutes = require('./src/router/hobbies-routes/hobbieRoute');
-const characterRoutes = require('./src/router/character-routes/characterRoute');
+const hobbieRoutes = require('./src/router/escuela/materias/algoritmos/proyectos/akinator/hobbies-routes/hobbieRoute');
+const characterRoutes = require('./src/router/escuela/materias/algoritmos/proyectos/akinator/character-routes/characterRoute');
 
 app.use(cors());
 

@@ -1,4 +1,4 @@
-const CharacterModel = require('../../models/character-model/characterModel');
+const CharacterModel = require('../../../../../../../models/escuela/materias/algortimos/proyectos/akinator/character-model/characterModel');
 
 const saveCharacters = async (data) => {
     try {
