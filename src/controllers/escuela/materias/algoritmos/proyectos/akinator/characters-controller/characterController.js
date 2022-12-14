@@ -5,7 +5,7 @@ const saveCharacters = async (data) => {
         // console.log("d", data)
         const date = new Date();
         data.date = date;
-        data.idUser = data.name.replace(/ /g, '-').toLowerCase().trim() + -+Math.floor(Math.random() * 1000);
+        data.idUser = data.name.replace(/ /g, '-').toLowerCase().trim() + "-"+Math.floor(Math.random() * 1000);
 
         const characterModel = new CharacterModel(data);
         // console.log(data)

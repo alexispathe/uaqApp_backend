@@ -20,6 +20,12 @@ const charactersModel = schema({
     date:{
         type: Date,
         // trim: true
+    },
+    categoryID:{
+        type: String,
+    },
+    subCategoryID:{
+        type: String
     }
 });
 

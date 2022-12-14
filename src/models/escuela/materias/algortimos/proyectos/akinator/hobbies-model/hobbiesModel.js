@@ -16,6 +16,10 @@ const hobbiesModel = schema({
     idUsers:{
         type: Array,
         trim: true
+    },
+    subCategoryID:{
+        type: String,
+        trim:true
     }
 });
 
