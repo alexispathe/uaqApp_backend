@@ -5,10 +5,10 @@ const saveHobbies = async (data) => {
         // console.log("d", data)
         data.idHobbie = data.name.replace(/ /g, '-').toLowerCase().trim();
         const hobbiesModel = new HobbiesModel(data);
-        console.log(hobbiesModel)
+        // console.log(hobbiesModel)
         // console.log(hobbiesModel)
         const hobbies = await hobbiesModel.save({});
-        console.log("hobbies", hobbies)
+        // console.log("hobbies", hobbies)
         return hobbies;
     } catch (err) {
         return err;
@@ -59,7 +59,7 @@ const updateHobbiesCharacter = async (data) => {
 }
 const searchHobbie = async (data) => {
     try {
-        console.log(data);
+        // console.log(data);
         const search = await HobbiesModel.find({
             $or:[
                 {name: {

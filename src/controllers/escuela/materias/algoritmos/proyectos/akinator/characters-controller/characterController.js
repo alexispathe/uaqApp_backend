@@ -18,7 +18,6 @@ const saveCharacters = async (data) => {
 
 const getCharacters = async () => {
     try {
-
         const character = await CharacterModel.find({},{_id:0, __v:false, date:0});
         return character;
     } catch (err) {
