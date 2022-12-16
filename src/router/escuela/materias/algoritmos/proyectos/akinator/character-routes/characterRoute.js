@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { created, success, errorServer, notFound, updated } = require('../../../../../../../response/res');
-const { getCharacters, saveCharacters, updateCharacters } = require('../../../../../../../controllers/escuela/materias/algoritmos/proyectos/akinator/characters-controller/characterController');
-const { updateHobbiesCharacter } = require('../../../../../../../controllers/escuela/materias/algoritmos/proyectos/akinator/hobbies-controller/hobbiesController');
+const { getCharacters, saveCharacters, updateCharacters } = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/characters-controller/characterController');
+const { updateHobbiesCharacter } = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/hobbies-controller/hobbiesController');
 router.post('/save-personaje', async (req, res) => {
     try {
         const character = await saveCharacters(req.body);

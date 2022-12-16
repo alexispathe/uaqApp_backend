@@ -1,4 +1,4 @@
-const HobbiesModel = require('../../../../../../../models/escuela/materias/algortimos/proyectos/akinator/hobbies-model/hobbiesModel');
+const HobbiesModel = require(process.env.ROUTE_AKINATOR_MODEL+'/hobbies-model/hobbiesModel');
 
 const saveHobbies = async (data) => {
     try {

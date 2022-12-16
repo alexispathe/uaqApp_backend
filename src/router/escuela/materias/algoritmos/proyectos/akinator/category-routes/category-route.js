@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {save} = require('../../../../../../../controllers/escuela/materias/algoritmos/proyectos/akinator/categories-controller/categoryController');
+const {save} = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/categories-controller/categoryController');
 const {created,deleted,errorServer,notFound,success,updated} = require('../../../../../../../response/res');
 router.post('/save-category', async(req, res)=>{
     try{

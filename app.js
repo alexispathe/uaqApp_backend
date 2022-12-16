@@ -8,9 +8,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
 // rutas
-const hobbieRoutes = require('./src/router/escuela/materias/algoritmos/proyectos/akinator/hobbies-routes/hobbieRoute');
-const characterRoutes = require('./src/router/escuela/materias/algoritmos/proyectos/akinator/character-routes/characterRoute');
-const categoryRoutes = require('./src/router/escuela/materias/algoritmos/proyectos/akinator/category-routes/categoryRoute');
+const hobbieRoutes = require(process.env.ROUTES_AKINATOR+'/hobbies-routes/hobbieRoute');
+const characterRoutes = require(process.env.ROUTES_AKINATOR+'/character-routes/characterRoute');
+const categoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/category-route');
+const subCategoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/subCategory-routes/subCategory-route');
 app.use(cors());
 
 app.listen(port,()=>{
@@ -20,6 +21,7 @@ app.use('/', express.static('public',{redirect:false}));
 app.use('/api', hobbieRoutes);
 app.use('/api', characterRoutes);
 app.use('/api',categoryRoutes);
+app.use('/api', subCategoryRoutes)
 app.get('*',(req, res)=>{
     res.sendFile(path.resolve('public/index.html'))
 })

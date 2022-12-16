@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {created, success, errorServer, notFound, updated} = require('../../../../../../../response/res'); 
-const {saveHobbies,getHobbies, updateHobbies,searchHobbie} = require('../../../../../../../controllers/escuela/materias/algoritmos/proyectos/akinator/hobbies-controller/hobbiesController');
+const {saveHobbies,getHobbies, updateHobbies,searchHobbie} = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/hobbies-controller/hobbiesController');
 router.post('/save-hobbies',async(req, res)=>{
     try{
         const hobbies = await saveHobbies(req.body);
