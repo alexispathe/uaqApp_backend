@@ -11,7 +11,15 @@ router.post('/save-hobbies',async(req, res)=>{
     }
 });
 
-router.get('/hobbies/:id', async(req, res)=>{
+router.get('/hobbies', async(req, res)=>{
+    try{
+        const hobbies = await getHobbies();
+        hobbies ? success(req, res, hobbies): notFound(req, res);
+    }catch(err){
+        return errorServer(req, res);
+    }
+});
+router.get('/get-category-hobbies/:id', async(req, res)=>{
     try{
         const hobbies = await getHobbies(req.params.id);
         hobbies.length >=1 ? success(req, res, hobbies): notFound(req, res);

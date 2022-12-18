@@ -15,7 +15,15 @@ const saveHobbies = async (data) => {
     }
 }
 
-const getHobbies = async (id) => {
+const getHobbies = async () => {
+    try {
+        const hobbies = await HobbiesModel.find({}, { _id: 0, __v: 0 }).sort({name:1});
+        return hobbies;
+    } catch (err) {
+        return err;
+    }
+}
+const getCategoryHobbies = async (id) => {
     try {
         const hobbies = await HobbiesModel.find({"subCategoryID": id}, { _id: 0, __v: 0 }).sort({name:1});
         return hobbies;
@@ -73,4 +81,4 @@ const searchHobbie = async (data) => {
         return err;
     }
 };
-module.exports = { saveHobbies, getHobbies, updateHobbies, updateHobbiesCharacter,searchHobbie }
+module.exports = { saveHobbies, getHobbies, updateHobbies, updateHobbiesCharacter,searchHobbie,getCategoryHobbies }
