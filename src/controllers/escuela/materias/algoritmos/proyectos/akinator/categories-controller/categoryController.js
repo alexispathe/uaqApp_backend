@@ -10,5 +10,13 @@ const save=async(data)=>{
     }catch(err){
         return err;
     }
+};
+const getCategories = async()=>{
+    try{
+        const categories = await CategoryModel.find();
+        return categories;
+    }catch(err){
+        return err;
+    }
 }
-module.exports = {save};
+module.exports = {save,getCategories};

@@ -10,4 +10,13 @@ const save =  async(data)=>{
         return err;
     }
 }
-module.exports = {save}
+const getSubCategories =async(category)=>{
+    try{
+        const subCategories = await SubCategoryModel.find({"categoryID": category});
+        return subCategories;
+    }catch(err){
+        return err;
+    }
+}
+
+module.exports = {save,getSubCategories}

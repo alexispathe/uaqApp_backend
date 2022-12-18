@@ -15,9 +15,9 @@ const saveHobbies = async (data) => {
     }
 }
 
-const getHobbies = async () => {
+const getHobbies = async (id) => {
     try {
-        const hobbies = await HobbiesModel.find({}, { _id: 0, __v: 0 }).sort({name:1});
+        const hobbies = await HobbiesModel.find({"subCategoryID": id}, { _id: 0, __v: 0 }).sort({name:1});
         return hobbies;
     } catch (err) {
         return err;
