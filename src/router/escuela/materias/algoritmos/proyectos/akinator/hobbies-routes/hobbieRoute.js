@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {created, success, errorServer, notFound, updated} = require('../../../../../../../response/res'); 
-const {saveHobbies,getHobbies, updateHobbies,searchHobbie} = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/hobbies-controller/hobbiesController');
+const {saveHobbies,getHobbies, updateHobbies,searchHobbie,getCategoryHobbies} = require(process.env.ROUTE_AKINATOR_CONTROLLER+'/hobbies-controller/hobbiesController');
 router.post('/save-hobbies',async(req, res)=>{
     try{
         const hobbies = await saveHobbies(req.body);
@@ -21,7 +21,7 @@ router.get('/hobbies', async(req, res)=>{
 });
 router.get('/get-category-hobbies/:id', async(req, res)=>{
     try{
-        const hobbies = await getHobbies(req.params.id);
+        const hobbies = await getCategoryHobbies(req.params.id);
         hobbies.length >=1 ? success(req, res, hobbies): notFound(req, res);
     }catch(err){
         return errorServer(req, res);

@@ -3,7 +3,7 @@ const CategoryModel = require(process.env.ROUTE_AKINATOR_MODEL+'/category-model/
 const save=async(data)=>{
     try{
         const categoryModel = new CategoryModel(data);
-        console.log(categoryModel)
+        // console.log(categoryModel)
         categoryModel.categoryID = categoryModel.name.replace(/ /g, '-').toLowerCase().trim()+ "-"+Math.floor(Math.random() * 1000);;
         const category = await categoryModel.save();
         return category;

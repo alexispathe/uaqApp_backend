@@ -3,7 +3,7 @@ const HobbiesModel = require(process.env.ROUTE_AKINATOR_MODEL+'/hobbies-model/ho
 const saveHobbies = async (data) => {
     try {
         // console.log("d", data)
-        data.idHobbie = data.name.replace(/ /g, '-').toLowerCase().trim();
+        data.idHobbie = data.name.replace(/ /g, '-').toLowerCase().trim() +"-"+Math.floor(Math.random() * 1000);
         const hobbiesModel = new HobbiesModel(data);
         // console.log(hobbiesModel)
         // console.log(hobbiesModel)
