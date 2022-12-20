@@ -12,6 +12,8 @@ const hobbieRoutes = require(process.env.ROUTES_AKINATOR+'/hobbies-routes/hobbie
 const characterRoutes = require(process.env.ROUTES_AKINATOR+'/character-routes/characterRoute');
 const categoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/category-route');
 const subCategoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/subCategory-routes/subCategory-route');
+const categoryCharacteristicsRoutes = require(process.env.ROUTES_AKINATOR+'/category-characteristics-routes/categoryCharacteristicsRoute');
+
 app.use(cors());
 
 app.listen(port,()=>{
@@ -21,7 +23,8 @@ app.use('/', express.static('public',{redirect:false}));
 app.use('/api', hobbieRoutes);
 app.use('/api', characterRoutes);
 app.use('/api',categoryRoutes);
-app.use('/api', subCategoryRoutes)
+app.use('/api', subCategoryRoutes);
+app.use('/api', categoryCharacteristicsRoutes)
 app.get('*',(req, res)=>{
     res.sendFile(path.resolve('public/index.html'))
 })
