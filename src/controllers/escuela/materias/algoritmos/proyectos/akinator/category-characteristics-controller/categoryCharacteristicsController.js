@@ -2,8 +2,12 @@ const CategoryCharacteristicsModel = require(process.env.ROUTE_AKINATOR_MODEL + 
 
 const save = async (data) => {
     try {
+        // console.log(data)
         const categoryCharacteristicsModel = new CategoryCharacteristicsModel(data);
-        categoryCharacteristicsModel.nameID = data.name.replace(/ /g, '-').toLowerCase().trim() + "-" + Math.floor(Math.random() * 1000);
+        // CON EL FOR ESTAMOS AGREGANDO EL nameID a cada caracteristica que se encuentra dentro del ARRAY de characteristics
+        for (let i = 0; i < categoryCharacteristicsModel.characteristics.length; i++) {
+            categoryCharacteristicsModel.characteristics[i].nameID = categoryCharacteristicsModel.characteristics[i].name.replace(/ /g, '-').toLowerCase().trim() + "-" + Math.floor(Math.random() * 1000);
+        }
         const categoryCharacteristics = await categoryCharacteristicsModel.save();
         return categoryCharacteristics;
 
@@ -11,4 +15,4 @@ const save = async (data) => {
         return err;
     }
 }
-module.exports = {save};
+module.exports = { save };
