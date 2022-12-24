@@ -79,6 +79,8 @@ const login = async (mysqlConnect, body, pool) => {
     }
 }
 
+
+// METODOS GET
 const getUser = async (mysqlConnect, token, pool) => {
     try {
         const verify = await jwt.verify(token, 'secretkey');
@@ -86,26 +88,27 @@ const getUser = async (mysqlConnect, token, pool) => {
             const payload = await jwt.decode(token);
             if (payload) {
                 const { nUserID } = payload;
-                const query = "SELECT * FROM users WHERE nUserID = ?;";
+                const query = "SELECT name,email,role FROM users WHERE nUserID = ?;";
                 const sqlQuery = mysql.format(query, [nUserID.nUserID]);
                 mysqlConnect.getConnection((err, connection) => {
                     connection.query(sqlQuery, (err, result) => {
                         if (err) console.log(err);
+                        connection.release()
                         pool(result);
                     });
                 })
             }
         } else {
-            console.log("Ocurrio un error al verificar el token")
+            pool("Ocurrio un error al verificar el token")
         }
 
     } catch (err) {
-        console.log(err)
+        pool("ocurrio un error")
     }
 }
 const getUsers = async (mysqlConnect, pool) => {
     try {
-        const SqlQuery = "SELECT * FROM users";
+        const SqlQuery = "SELECT name FROM users";
         mysqlConnect.getConnection((err, connect) => {
             if (err) console.log(err);
             connect.query(SqlQuery, (err, result) => {
@@ -119,4 +122,36 @@ const getUsers = async (mysqlConnect, pool) => {
     }
 }
 
-module.exports = { register, getUsers, getUser, login };
+// METODOS PUT
+const updateUserInformation = async (mysqlConnect, body, token, pool) => {
+    try {
+        const verify = await jwt.verify(token, 'secretkey');
+        if (verify) {
+            const payload = await jwt.decode(token)
+            if (payload) {
+                const { nUserID } = payload;
+                const query = "UPDATE userinformation SET lastName = ?,userName =?, birthDay =?, phone =?, country =?, address =? WHERE userID = ?;";
+                const sqlQuery = mysql.format(query, [body.lastName, body.userName, body.birthDay, body.phone, body.country, body.address,nUserID.nUserID ]);
+                console.log(nUserID.nUserID)
+                console.log(sqlQuery)
+                mysqlConnect.getConnection((err, connection) => {
+                    if (err) pool("Ocurrio un erro al conectarse")
+                    connection.query(sqlQuery, (err, result) => {
+                        if (err) pool("Error en  la query");
+                        if (result) {
+                            pool(result)
+                        }
+                    })
+                })
+            }
+        } else {
+            pool("Ocurrio un error al verificar el token")
+        }
+
+    } catch (err) {
+        pool("Ocurrio un error")
+    }
+}
+
+
+module.exports = { register, getUsers, getUser, login, updateUserInformation };

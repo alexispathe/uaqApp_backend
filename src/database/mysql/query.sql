@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS userInformation(
     lastName VARCHAR(64),
     userName VARCHAR(20) UNIQUE,
     birthDay DATE,
-    phone INT(10) UNIQUE,
+    phone VARCHAR(10) UNIQUE,
     country VARCHAR(64),
     address VARCHAR(254),
     userID INT NOT NULL UNIQUE,
