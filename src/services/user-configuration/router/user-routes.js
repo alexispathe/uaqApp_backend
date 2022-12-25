@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { created, deleted, errorServer, notFound, success, updated } = require('../../../response/res');
-const { register, getUsers, getUser, login, updateUserInformation } = require('../controllers/user-controller');
+const { register, getUsers, getUser, getUserAndUserInformation, login, updateUserInformation } = require('../controllers/user-controller');
 const mysqlConnect = require('../../../database/mysql/mysqlDB');
 const { auth } = require('../../../auth/authentication');
 // METODOS GET
@@ -13,6 +13,15 @@ router.get('/get-users', (req, res) => {
 router.get('/get-user', auth, (req, res) => {
     try {
         getUser(mysqlConnect, req.token, result => {
+            res.json(result);
+        })
+    } catch (err) {
+        console.log(err)
+    }
+})
+router.get('/get-user-information', auth, (req, res) => {
+    try {
+        getUserAndUserInformation(mysqlConnect, req.token, result => {
             res.json(result);
         })
     } catch (err) {

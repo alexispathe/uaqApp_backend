@@ -1,5 +1,6 @@
 const auth =(req, res, next)=>{
     const headers = req.headers['authorization'];
+
     if(headers.length>1){
         const headerToken = headers.replace(/"/g,'');
         // console.log(headerToken)

@@ -6,14 +6,23 @@ const register = async (mysqlConnect, data, pool) => {
         if (data.password) {
             const hashed = await bcrypt.hash(data.password, 10);
             if (hashed) {
+                // GUARDAMOS LOS DATOS DEL REGISTRO DE USUARIOS EN LA TABLA 'users' DE LA BASE DE DATOS
                 const query = "INSERT INTO users(name, email, password, role, userStatus,registrationDay) VALUES (?,?,?,'user',true, CURRENT_TIMESTAMP());";
                 const SQLquery = mysql.format(query, [data.name, data.email, hashed, data.role]);
                 mysqlConnect.getConnection((err, connection) => {
-                    if (err) throw console.log(err);
+                    if (err) console.log(err);
                     connection.query(SQLquery, (err, result) => {
                         if (err) console.log(err);
-                        connection.release();
-                        pool(result)
+                        // CREMOS OTRO REGISTRO PARA LA TABLA DE 'userInformation'
+                        const query = ` INSERT INTO userInformation(lastName, userName, birthDay,phone,country,address,userID) 
+                                        VALUES(null,null,CURRENT_TIMESTAMP(),null,null,null,?);`;
+                        const sqlQuery = mysql.format(query, [result.insertId]);
+                        connection.query(sqlQuery, (err, result) => {
+                            if (err) console.log(err);
+                            // const {insertID} = result;
+                            pool(result)
+                            connection.release();
+                        })
                     })
                 });
             } else {
@@ -106,6 +115,35 @@ const getUser = async (mysqlConnect, token, pool) => {
         pool("ocurrio un error")
     }
 }
+const getUserAndUserInformation = async (mysqlConnect, token, pool) => {
+    try {
+        const verify = await jwt.verify(token, 'secretkey');
+        if (verify) {
+            const payload = await jwt.decode(token);
+            if (payload) {
+                const { nUserID } = payload;
+                const query = `SELECT u.name,ui.lastName,ui.userName,ui.birthDay,ui.phone,ui.country,ui.address 
+                                FROM users as u
+                                INNER JOIN userInformation as ui
+                                ON u.nUserID = ui.userID
+                                WHERE nUserID = ?;`;
+                const sqlQuery = mysql.format(query, [nUserID.nUserID]);
+                mysqlConnect.getConnection((err, connection) => {
+                    connection.query(sqlQuery, (err, result) => {
+                        if (err) console.log(err);
+                        connection.release()
+                        pool(result);
+                    });
+                })
+            }
+        } else {
+            pool("Ocurrio un error al verificar el token")
+        }
+
+    } catch (err) {
+        pool("ocurrio un error")
+    }
+}
 const getUsers = async (mysqlConnect, pool) => {
     try {
         const SqlQuery = "SELECT name FROM users";
@@ -130,9 +168,10 @@ const updateUserInformation = async (mysqlConnect, body, token, pool) => {
             const payload = await jwt.decode(token)
             if (payload) {
                 const { nUserID } = payload;
-                const query = "UPDATE userinformation SET lastName = ?,userName =?, birthDay =?, phone =?, country =?, address =? WHERE userID = ?;";
-                const sqlQuery = mysql.format(query, [body.lastName, body.userName, body.birthDay, body.phone, body.country, body.address,nUserID.nUserID ]);
-                console.log(nUserID.nUserID)
+                // CHEAR LO DE LA FECHA *************************************+
+                const query = "UPDATE userinformation SET lastName = ?,userName =?, phone =?, country =?, address =? WHERE userID = ?;";
+                const sqlQuery = mysql.format(query, [body.lastName, body.userName, body.phone, body.country, body.address, nUserID.nUserID]);
+                // console.log(nUserID.nUserID)
                 console.log(sqlQuery)
                 mysqlConnect.getConnection((err, connection) => {
                     if (err) pool("Ocurrio un erro al conectarse")
@@ -154,4 +193,4 @@ const updateUserInformation = async (mysqlConnect, body, token, pool) => {
 }
 
 
-module.exports = { register, getUsers, getUser, login, updateUserInformation };
+module.exports = { register, getUsers, getUser, getUserAndUserInformation, login, updateUserInformation };
