@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS userInformation(
     phone VARCHAR(10) UNIQUE,
     country VARCHAR(64),
     address VARCHAR(254),
+    profilePicture TEXT ,
     userID INT NOT NULL UNIQUE,
     FOREIGN KEY(userID) REFERENCES users(nUserID)
 );

@@ -29,4 +29,11 @@ const deleted =(req, res)=>{
 const errorServer =(req, res)=>{
     return res.status(500).send("Ocurrio un error en el servidor")
 }
-module.exports = {success, created, updated, notFound, deleted, errorServer};
+const badRequest =(req, res)=>{
+    return res.status(400).send("Error")
+}
+const unauthorized =(req, res)=>{
+    return res.status(401);
+}
+
+module.exports = {success, created, updated, notFound, deleted, errorServer,badRequest,unauthorized};
