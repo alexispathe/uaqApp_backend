@@ -13,7 +13,7 @@ const characterRoutes = require(process.env.ROUTES_AKINATOR+'/character-routes/c
 const categoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/category-route');
 const subCategoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/subCategory-routes/subCategory-route');
 const categoryCharacteristicsRoutes = require(process.env.ROUTES_AKINATOR+'/category-characteristics-routes/categoryCharacteristicsRoute');
-const userRoutes = require('./src/services/user-configuration/router/user-routes');
+const userRoutes = require('./src/services/user-configuration/user_router/user-routes');
 
 app.use(cors());
 

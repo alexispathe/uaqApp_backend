@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { created, deleted, errorServer, notFound, success, updated, badRequest, unauthorized } = require('../../../response/res');
-const { register, getUsers, getUser, getUserAndUserInformation, login, updateUserInformation,getProfilePicture } = require('../controllers/user-controller');
+const {getUsers, getUser, getUserAndUserInformation,getProfilePicture } = require('../user_controllers/get_controller/get_user_controller');
+const {login,register} = require('../user_controllers/post_controller/post_user_controller');
+const {updateUserInformation} =require('../user_controllers/put_controller/put_user_controller');
 const mysqlConnect = require('../../../database/mysql/mysqlDB');
 const { auth } = require('../../../auth/authentication');
 // METODOS GET
@@ -22,13 +24,7 @@ router.get('/get-user', auth, (req, res) => {
 router.get('/get-user-information', auth, (req, res) => {
     try {
         getUserAndUserInformation(mysqlConnect, req.token, result => {
-            if (result.code === 401) {
                 res.json(result)
-            } else {
-                // console.log(result)
-                res.json(result);
-
-            }
         })
     } catch (err) {
         console.log(err)
@@ -53,9 +49,7 @@ router.post('/register-user', (req, res) => {
 
 router.post('/login-user', (req, res) => {
     login(mysqlConnect, req.body, result => {
-        // console.log(result)
-        if(result.status === 404) res.json(result); //Cuando el correo o contraseña es incorrecta
-        if(result.status !== 404) res.json(result); //Cuando todo es valido
+        res.json(result); //Cuando todo es valido
     })
 })
 router.put('/update-information', auth, (req, res) => {
