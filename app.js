@@ -17,7 +17,7 @@ const userRoutes = require('./src/services/user_configuration/user_router/user-r
 const uploadImage = require('./src/services/user_configuration/user_router/upload_image_route');
 app.use(cors());
 app.listen(port,()=>{
-    console.log(`Servidor conectado correctamente en el pureto ${port}`)
+    console.log(`Servidor conectado correctamente en el pureto  ${port}`)
 });
 app.use('/', express.static('public',{redirect:false}));
 app.use('/api', hobbieRoutes);
