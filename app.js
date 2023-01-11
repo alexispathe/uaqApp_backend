@@ -7,16 +7,15 @@ const path =require('path');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
-// rutas
-const hobbieRoutes = require(process.env.ROUTES_AKINATOR+'/hobbies-routes/hobbieRoute');
-const characterRoutes = require(process.env.ROUTES_AKINATOR+'/character-routes/characterRoute');
-const categoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/category-route');
-const subCategoryRoutes = require(process.env.ROUTES_AKINATOR+'/category-routes/subCategory-routes/subCategory-route');
-const categoryCharacteristicsRoutes = require(process.env.ROUTES_AKINATOR+'/category-characteristics-routes/categoryCharacteristicsRoute');
-const userRoutes = require('./src/services/user-configuration/user_router/user-routes');
 
+const hobbieRoutes = require(   './src/services/projects/school_p/algoritmos/projects/akinator_p/routes/hobbies-routes/hobbieRoute');
+const characterRoutes = require('./src/services/projects/school_p/algoritmos/projects/akinator_p/routes/character-routes/characterRoute');
+const categoryRoutes = require('./src/services/projects/school_p/algoritmos/projects/akinator_p/routes/category-routes/category-route');
+const subCategoryRoutes = require('./src/services/projects/school_p/algoritmos/projects/akinator_p/routes/category-routes/subCategory-routes/subCategory-route');
+const categoryCharacteristicsRoutes = require('./src/services/projects/school_p/algoritmos/projects/akinator_p/routes/category_characteristics_routes/categoryCharacteristicsRoute');
+const userRoutes = require('./src/services/user_configuration/user_router/user-routes');
+const uploadImage = require('./src/services/user_configuration/user_router/upload_image_route');
 app.use(cors());
-
 app.listen(port,()=>{
     console.log(`Servidor conectado correctamente en el pureto ${port}`)
 });
@@ -27,7 +26,10 @@ app.use('/api',categoryRoutes);
 app.use('/api', subCategoryRoutes);
 app.use('/api', categoryCharacteristicsRoutes);
 app.use('/api', userRoutes);
+app.use(express.static(path.join(__dirname, './src/services/user_configuration/configure_images/upload/image.jpg')));
+app.use('/api', uploadImage)
 app.get('*',(req, res)=>{
     res.sendFile(path.resolve('public/index.html'))
 })
+
 module.exports ={app};
