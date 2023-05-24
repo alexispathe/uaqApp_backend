@@ -19,7 +19,7 @@ app.use(cors());
 app.listen(port,()=>{
     console.log(`Servidor conectado correctamente en el pureto  ${port}`)
 });
-app.use('/', express.static('public',{redirect:false}));
+// app.use('/', express.static('public',{redirect:false}));
 app.use('/api', hobbieRoutes);
 app.use('/api', characterRoutes);
 app.use('/api',categoryRoutes);
@@ -28,8 +28,8 @@ app.use('/api', categoryCharacteristicsRoutes);
 app.use('/api', userRoutes);
 app.use(express.static(path.join(__dirname, './src/services/user_configuration/configure_images/upload/image.jpg')));
 app.use('/api', uploadImage)
-app.get('*',(req, res)=>{
-    res.sendFile(path.resolve('public/index.html'))
-})
+// app.get('*',(req, res)=>{
+//     res.sendFile(path.resolve('public/index.html'))
+// })
 
 module.exports ={app};
