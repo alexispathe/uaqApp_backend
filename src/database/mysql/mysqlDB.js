@@ -7,7 +7,7 @@ const connection = mysql.createPool({
     password: process.env.PASSWORD
 });
 connection.getConnection((err)=>{
-    if(err) throw err;
+    if(err) console.log( err);
     console.log("Conectado a MYSQL")
 });
 module.exports = connection;

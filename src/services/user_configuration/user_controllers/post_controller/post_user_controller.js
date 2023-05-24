@@ -8,6 +8,7 @@ const register = async (mysqlConnect, data, pool) => {
             if (hashed) {
                 // GUARDAMOS LOS DATOS DEL REGISTRO DE USUARIOS EN LA TABLA 'users' DE LA BASE DE DATOS
                 const query = "INSERT INTO users(name, email, password, role, userStatus,registrationDay) VALUES (?,?,?,'user',true, CURRENT_TIMESTAMP());";
+                console.log(data)
                 const SQLquery = mysql.format(query, [data.name, data.email.toLowerCase().trim(), hashed, data.role]);
                 mysqlConnect.getConnection((err, connection) => {
                     if (err) console.log(err);
