@@ -1,43 +1,33 @@
-const mysql = require('mysql');
+const mysql = require('mssql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const register = async (mysqlConnect, data, pool) => {
     try {
         if (data.password) {
+           
             const hashed = await bcrypt.hash(data.password, 10);
             if (hashed) {
-                // GUARDAMOS LOS DATOS DEL REGISTRO DE USUARIOS EN LA TABLA 'users' DE LA BASE DE DATOS
-                const query = "INSERT INTO users(name, email, password, role, userStatus,registrationDay) VALUES (?,?,?,'user',true, CURRENT_TIMESTAMP());";
                 console.log(data)
-                const SQLquery = mysql.format(query, [data.name, data.email.toLowerCase().trim(), hashed, data.role]);
-                mysqlConnect.getConnection((err, connection) => {
-                    if (err) console.log(err);
-
-                    connection.query(SQLquery, (err, result) => {
-                        if (err) {
-                            pool({ code: err.code })
-                            connection.release();
-                        };
-                        // Esta condicioon entrara cuando no ocurra ningun error al hacer la consulta de arriba
-                        if (result) {
-                            // CREMOS OTRO REGISTRO PARA LA TABLA DE 'userInformation'
-                            // const query = ` INSERT INTO userInformation(lastName, userName, birthDay,phone,country,address,userID) 
-                            //                 VALUES('',null,CURRENT_TIMESTAMP(),null,'','',?);`;
-                            const query = ` INSERT INTO userInformation(birthDay,userID,profilePicture) 
-                        VALUES(CURRENT_TIMESTAMP(),?,'https://marketplace.canva.com/EAEkB8aSmJU/2/0/1600w/canva-rosa-y-amarillo-gato-moderno-dibujado-a-mano-abstracto-imagen-de-perfil-de-twitch-bI-Ixh9fAbQ.jpg');`;
-                            const sqlQuery = mysql.format(query, [result.insertId]);
-                            connection.query(sqlQuery, (err, result) => {
-                                if (err) console.log(err);
-                                // const {insertID} = result;
-                                pool(result)
-                                connection.release();
-                            })
-                        }
-
-                    })
-                });
+                var result = mysqlConnect.request().query(
+                    `
+                    INSERT INTO users(name, email, password, role, userStatus,registrationDay) 
+                    VALUES (
+                        [
+                            ${data.name}, 
+                            ${data.email.toLowerCase().trim()}, 
+                            ${data.password},
+                            user,
+                            ${1}
+                        ]
+                    );
+                    `
+                )
+                
+                console.log("result", result)
+                // GUARDAMOS LOS DATOS DEL REGISTRO DE USUARIOS EN LA TABLA 'users' DE LA BASE DE DATOS
+               
             } else {
-                console.log("Contraseña encriptada")
+                console.log("Contraseña no encriptada")
             }
 
         }
