@@ -1,90 +1,137 @@
 const mysql = require('mssql');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const register = async (mysqlConnect, data, pool) => {
+const register = async (dbConfig, data, result) => {
     try {
         if (data.password) {
-           
+            // Encriptamos la contraseña
             const hashed = await bcrypt.hash(data.password, 10);
             if (hashed) {
-                console.log(data)
-                var result = mysqlConnect.request().query(
-                    `
-                    INSERT INTO users(name, email, password, role, userStatus,registrationDay) 
-                    VALUES (
-                        [
-                            ${data.name}, 
-                            ${data.email.toLowerCase().trim()}, 
-                            ${data.password},
-                            user,
-                            ${1}
-                        ]
-                    );
-                    `
-                )
+                const pool = await mysql.connect(dbConfig);
+                // Crear una instancia de solicitud
+                const request = pool.request();
+                // Creamos la query para insertar los datos
+                const query = `INSERT INTO users(name, email, password, role, registrationDay) 
+                            VALUES (@name, @email, @password, @role,CURRENT_TIMESTAMP);`;
+                request.input('name', mysql.VarChar, data.name);
+                request.input('email', mysql.VarChar, data.email.toLowerCase().trim());
+                request.input('password', mysql.VarChar, hashed);
+                request.input('role', mysql.VarChar, 'user');
+                const result = await request.query(query);
+                // Una vez creado el usuario, tambien creamos su referencia en la tabla userInformation
+                if(result){
+                    const queryNUserID = "SELECT nUserID FROM users WHERE email = @emailUser;";
+                    request.input('emailUser', mysql.VarChar, data.email.toLowerCase().trim());
+                    const nUserID = await request.query(queryNUserID);
+
+                    const queryUserInformation = "INSERT INTO userInformation(userID) VALUES (@userID)";
+                    console.log(nUserID.recordset[0])
+                    request.input('userID', mysql.Int, nUserID.recordset[0].nUserID);
+                    await request.query(queryUserInformation);
+                    await pool.close();
+                    return result.rowsAffected[0];
+                }
                 
-                console.log("result", result)
-                // GUARDAMOS LOS DATOS DEL REGISTRO DE USUARIOS EN LA TABLA 'users' DE LA BASE DE DATOS
                
             } else {
-                console.log("Contraseña no encriptada")
+                console.log("Contraseña no encriptada");
+                pool.close();
+
             }
 
         }
     }
     catch (err) {
-
+        console.log(err);
     }
 
 };
-const login = async (mysqlConnect, body, pool) => {
+const login = async (dbConfig, body, result) => {
     try {
+        const pool = await mysql.connect(dbConfig);
+        const request = pool.request();
         // buscamos al usuario con su correo para devolver solo el correo y la contraseña
-        const query = "SELECT email, password FROM users WHERE email = ?;";
-        const sqlQuery = mysql.format(query, [body.email.toLowerCase().trim()]);
-        mysqlConnect.getConnection((err, connection) => {
-            if (err) console.log(err);
-            connection.query(sqlQuery, (err, resEmail) => {
-                if (err) console.log(err);
-                if (resEmail.length >= 1) {
-                    const [data] = resEmail;
-                    // console.log(data.email)
-                    connection.release()
-                    bcrypt.compare(body.password, data.password).then(res => {
-                        if (!res) pool({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
-                        if (res) {
-                            //  HACEMOS OTRA CONSULTA PARA DEVOLVER SOLO EL ID DEL USUARIO PARA GUARDARLO EN EL TOKEN
-                            const query = "SELECT nUserID FROM users WHERE email = ?";
-                            const sqlQuery = mysql.format(query, data.email);
-                            mysqlConnect.getConnection((err, connection) => {
+        const query = "SELECT email, password FROM users WHERE email = @email;";
+        request.input('email', mysql.VarChar, body.email.toLowerCase().trim());
+
+        // const sqlQuery = mysql.format(query, [body.email.toLowerCase().trim()]);
+        const resultEmail = await request.query(query);
+        if(resultEmail){
+            const {recordset} = resultEmail;
+            // console.log(recordset[0].email) ;
+            bcrypt.compare(body.password, recordset[0].password).then(res => {
+                if (!res) result({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
+                if (res) {
+                    //  HACEMOS OTRA CONSULTA PARA DEVOLVER SOLO EL ID DEL USUARIO PARA GUARDARLO EN EL TOKEN
+                    const query = "SELECT nUserID FROM users WHERE email = @emailID;";
+                    request.input('emailID', mysql.VarChar, recordset[0].email);
+                    request.query(query,(err, resID)=>{
+                        if (err) console.log(err);
+                        if (resID.recordset.length >= 1) {
+                            const user ={
+                                id: resID.recordset[0].nUserID
+                            }
+                            jwt.sign( user , 'secretkey', { expiresIn: "1h" }, (err, token) => {
                                 if (err) console.log(err);
-                                connection.query(sqlQuery, (err, resID) => {
-                                    if (err) console.log(err);
-
-                                    if (resID.length >= 1) {
-                                        const user ={
-                                            id: resID[0].nUserID
-                                        }
-                                        jwt.sign( user , 'secretkey', { expiresIn: "1h" }, (err, token) => {
-                                            if (err) console.log(err);
-                                            if (token) {
-                                                pool(token)
-                                            } else {
-                                                pool(token)
-                                            }
-                                        })
-                                    } else {
-                                        pool("No se encontro al usuario")
-                                    }
-                                })
+                                if (token) {
+                                    result(token)
+                                } else {
+                                    result(token)
+                                }
                             })
+                        } else {
+                            result("No se encontro al usuario")
                         }
-                    }).catch(err => console.log(err))
-                }
-                if (resEmail.length === 0) pool({ status: 404 })// cuando el correo no es encontrado
-            })
+                    });
 
-        })
+                }
+            }).catch(err => console.log(err))
+        }else{
+            console.log("No se encontro el usuario")
+        }
+        // mysqlConnect.getConnection((err, connection) => {
+        //     if (err) console.log(err);
+        //     connection.query(sqlQuery, (err, resEmail) => {
+        //         if (err) console.log(err);
+        //         if (resEmail.length >= 1) {
+        //             const [data] = resEmail;
+        //             // console.log(data.email)
+        //             connection.release()
+        //             bcrypt.compare(body.password, data.password).then(res => {
+        //                 if (!res) pool({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
+        //                 if (res) {
+        //                     //  HACEMOS OTRA CONSULTA PARA DEVOLVER SOLO EL ID DEL USUARIO PARA GUARDARLO EN EL TOKEN
+        //                     const query = "SELECT nUserID FROM users WHERE email = ?";
+        //                     const sqlQuery = mysql.format(query, data.email);
+        //                     mysqlConnect.getConnection((err, connection) => {
+        //                         if (err) console.log(err);
+        //                         connection.query(sqlQuery, (err, resID) => {
+        //                             if (err) console.log(err);
+
+        //                             if (resID.length >= 1) {
+        //                                 const user ={
+        //                                     id: resID[0].nUserID
+        //                                 }
+        //                                 jwt.sign( user , 'secretkey', { expiresIn: "1h" }, (err, token) => {
+        //                                     if (err) console.log(err);
+        //                                     if (token) {
+        //                                         pool(token)
+        //                                     } else {
+        //                                         pool(token)
+        //                                     }
+        //                                 })
+        //                             } else {
+        //                                 pool("No se encontro al usuario")
+        //                             }
+        //                         })
+        //                     })
+        //                 }
+        //             }).catch(err => console.log(err))
+        //         }
+        //         if (resEmail.length === 0) pool({ status: 404 })// cuando el correo no es encontrado
+        //     })
+
+        // })
     } catch (err) {
         console.log(err)
     }

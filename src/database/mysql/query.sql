@@ -27,18 +27,17 @@ CREATE TABLE IF NOT EXISTS userInformation(
 
 -- SQL SERVER 
 Create Table users(
-    nUserID INT NOT NULL  PRIMARY KEY,
+    nUserID INT IDENTITY(1,1) NOT NULL  PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     email VARCHAR(64) NOT NULL UNIQUE,
     password TEXT NOT NULL,
     role  VARCHAR(10) CHECK (role IN('admin', 'user')) NOT NULL,
-	
     userStatus bit,
     registrationDay DATETIME NOT NULL
 );
 
 CREATE TABLE  userInformation(
-    nUserInformationID INT NOT NULL  PRIMARY KEY,
+    nUserInformationID INT IDENTITY(1,1) NOT NULL  PRIMARY KEY,
     lastName VARCHAR(64),
     userName VARCHAR(20) UNIQUE,
     birthDay DATE,

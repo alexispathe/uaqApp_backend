@@ -34,4 +34,4 @@ async function executeQuery(query) {
     }
 }
 executeQuery();
-module.exports = executeQuery;
+module.exports = {executeQuery, dbConfig};

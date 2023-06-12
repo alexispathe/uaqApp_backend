@@ -10,6 +10,7 @@ const save=async(data,token)=>{
                 categoryModel.userID = payload.id;
                 categoryModel.categoryID = categoryModel.name.replace(/ /g, '-').toLowerCase().trim()+ "-"+Math.floor(Math.random() * 1000);
                 const category = await categoryModel.save();
+                
                 return {status: 200,categoryID: category.categoryID};
             }
         }else{
