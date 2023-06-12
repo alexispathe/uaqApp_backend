@@ -1,79 +1,73 @@
-const mysql = require('mysql');
+const mysql = require('mssql');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-const getUserID =async(mysqlConnect, token, pool)=>{
-    try{
+const getUserID = async (mysqlConnect, token, pool) => {
+    try {
         // Validamos que de verdad se envie el token
-        if(token){
-            const verify= await jwt.verify(token, 'secretkey');
-            if(verify){
+        if (token) {
+            const verify = await jwt.verify(token, 'secretkey');
+            if (verify) {
                 const payload = await jwt.decode(token);
                 // console.log(payload.nUserID)
-                pool({id:payload.id});
+                pool({ id: payload.id });
             }
-        }else{
-            pool({code:401})
+        } else {
+            pool({ code: 401 })
         }
-       
-    }catch(err){
-        pool({code: 401})
+
+    } catch (err) {
+        pool({ code: 401 })
     }
 }
-const getUser = async (mysqlConnect, token, pool) => {
+const getUser = async (dbConfig, token, result) => {
     try {
+        const pool = await mysql.connect(dbConfig);
+        const request = pool.request();
         const verify = await jwt.verify(token, 'secretkey');
         // console.log(verify)
         if (verify) {
             const payload = await jwt.decode(token);
             if (payload) {
-                
-                const query = "SELECT name,email,role FROM users WHERE nUserID = ?;";
-                const sqlQuery = mysql.format(query, [payload.id]);
-                mysqlConnect.getConnection((err, connection) => {
-                    connection.query(sqlQuery, (err, result) => {
-                        if (err) console.log(err);
-                        connection.release()
-                        pool(result);
-                    });
-                })
+                const query = "SELECT name,email,role FROM users WHERE nUserID = @id;";
+                request.input('id', mysql.Int, payload.id);
+                const user = await request.query(query);
+                result(user);
+                await pool.close();
             }
         } else {
-            pool("Ocurrio un error al verificar el token")
+            result("Ocurrio un error al verificar el token")
         }
-
     } catch (err) {
-        pool("ocurrio un error")
+        result("ocurrio un error")
     }
 }
-const getUserAndUserInformation = async (mysqlConnect, token, pool) => {
+const getUserAndUserInformation = async (dbConfig, token, result) => {
     try {
+        const pool = await mysql.connect(dbConfig);
+        const request = pool.request();
         const verify = await jwt.verify(token, 'secretkey');
+        // console.log("verify", verify);
         if (verify) {
-
             const payload = await jwt.decode(token);
             if (payload) {
                 const query = `SELECT u.name,ui.lastName,ui.userName,ui.profilePicture, ui.birthDay,ui.phone,ui.country,ui.address 
                                 FROM users as u
                                 INNER JOIN userInformation as ui
                                 ON u.nUserID = ui.userID
-                                WHERE nUserID = ?;`;
-                const sqlQuery = mysql.format(query, [payload.id]);
-                mysqlConnect.getConnection((err, connection) => {
-                    if (err) console.log(err)
-                    connection.query(sqlQuery, (err, result) => {
-                        if (err) console.log(err);
-                        connection.release()
-                        pool(result);
-                    });
-                })
+                                WHERE nUserID = @id;`;
+                request.input('id', mysql.Int, payload.id);
+                const user = await request.query(query);
+                console.log(user);
+                result(user);
+                await pool.close();
             }
         } else {
-            pool("Ocurrio un error al verificar el token")
+            result("Ocurrio un error al verificar el token")
         }
 
     } catch (err) {
-        pool({ code: 401 })
+        result({ code: 401 })
     }
 }
 const getUsers = async (mysqlConnect, pool) => {
@@ -104,7 +98,7 @@ const getProfilePicture = async (mysqlConnect, token, pool) => {
                     if (err) console.log(err);
                     if (connection) {
                         connection.query(sqlQuery, (err, result) => {
-                            if (err) console.log(err) 
+                            if (err) console.log(err)
                             else if (result) {
                                 pool(result);
                                 connection.release();
@@ -120,21 +114,21 @@ const getProfilePicture = async (mysqlConnect, token, pool) => {
             pool("Ocurrio un error al verificar el token")
         }
     } catch (err) {
-        pool({status: 401}); //Cuando ocurre un error al verificar  el token se ejecuta este catch
+        pool({ status: 401 }); //Cuando ocurre un error al verificar  el token se ejecuta este catch
     }
 }
 // Devolver la imagen donde esta gurdada
-const getImage = async(req, res)=>{
-    try{
-        const file_path = './src/services/user_configuration/configure_images/upload/' +req.params.id;
-        fs.exists(file_path,(exists)=>{
-            if(exists){
+const getImage = async (req, res) => {
+    try {
+        const file_path = './src/services/user_configuration/configure_images/upload/' + req.params.id;
+        fs.exists(file_path, (exists) => {
+            if (exists) {
                 return res.sendFile(path.resolve(file_path));
             }
-            return res.status(404).send({message: "Imagen no encontrada"})
+            return res.status(404).send({ message: "Imagen no encontrada" })
         })
-    }catch(err){
+    } catch (err) {
         console.log(err)
     }
 }
-module.exports = {getUser,getUserAndUserInformation,getUsers, getProfilePicture,getImage,getUserID}
+module.exports = { getUser, getUserAndUserInformation, getUsers, getProfilePicture, getImage, getUserID }

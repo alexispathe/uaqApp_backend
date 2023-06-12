@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
-const uri = process.env.URILOCAL;
+const uri = process.env.URI;
 mongoose.set('strictQuery',false);
 mongoose.connect(uri)
-.then(()=>console.log("Se conecto a la base de datos"))
+.then(()=>console.log("Se conecto a mongodb"))
 .catch(err=> console.log(err));
 
 module.exports = mongoose;
