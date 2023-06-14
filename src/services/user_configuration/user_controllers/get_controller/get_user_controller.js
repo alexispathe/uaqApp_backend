@@ -32,6 +32,7 @@ const getUser = async (dbConfig, token, result) => {
                 const query = "SELECT name,email,role FROM users WHERE nUserID = @id;";
                 request.input('id', mysql.Int, payload.id);
                 const user = await request.query(query);
+
                 result(user);
                 await pool.close();
             }
@@ -58,7 +59,7 @@ const getUserAndUserInformation = async (dbConfig, token, result) => {
                                 WHERE nUserID = @id;`;
                 request.input('id', mysql.Int, payload.id);
                 const user = await request.query(query);
-                console.log(user);
+                console.log(payload.id);
                 result(user);
                 await pool.close();
             }

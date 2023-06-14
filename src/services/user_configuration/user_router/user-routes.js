@@ -46,6 +46,7 @@ router.put('/update-information', auth, (req, res) => {
 // METODOS GET
 router.get('/get-users', (req, res) => {
     getUsers(mysqlConnect, result => {
+        console.log(result)
         res.json(result);
     })
 });
