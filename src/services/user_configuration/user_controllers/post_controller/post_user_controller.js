@@ -58,7 +58,8 @@ const login = async (dbConfig, body, result) => {
         const resultEmail = await request.query(query);
         if(resultEmail){
             const {recordset} = resultEmail;
-            // console.log(recordset[0].email) ;
+            // console.log(recordset[0].password)
+            // console.log("Dentro " ,body);
             bcrypt.compare(body.password, recordset[0].password).then(res => {
                 if (!res) result({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
                 if (res) {
@@ -71,7 +72,7 @@ const login = async (dbConfig, body, result) => {
                             const user ={
                                 id: resID.recordset[0].nUserID
                             }
-                            jwt.sign( user , 'secretkey', { expiresIn: "1h" }, (err, token) => {
+                            jwt.sign( user , 'secretkey', { expiresIn: "4h" }, (err, token) => {
                                 if (err) console.log(err);
                                 if (token) {
                                     result(token)
