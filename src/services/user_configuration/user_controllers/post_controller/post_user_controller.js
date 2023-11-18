@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const register = async (dbConfig, data, result) => {
     try {
+        // console.log("Datos ", data)
         if (data.password) {
             // Encriptamos la contraseña
             const hashed = await bcrypt.hash(data.password, 10);
@@ -17,19 +18,22 @@ const register = async (dbConfig, data, result) => {
                 request.input('email', mysql.VarChar, data.email.toLowerCase().trim());
                 request.input('password', mysql.VarChar, hashed);
                 request.input('role', mysql.VarChar, 'user');
-                const result = await request.query(query);
+                const dataUser = await request.query(query);
+                // pool.close();
+                // return result(dataUser)
                 // Una vez creado el usuario, tambien creamos su referencia en la tabla userInformation
-                if(result){
+                if(dataUser){
                     const queryNUserID = "SELECT nUserID FROM users WHERE email = @emailUser;";
                     request.input('emailUser', mysql.VarChar, data.email.toLowerCase().trim());
-                    const nUserID = await request.query(queryNUserID);
+                    const userID = await request.query(queryNUserID); //buscamos el id del usuario creado con el correo nuevo
 
-                    const queryUserInformation = "INSERT INTO userInformation(userID) VALUES (@userID)";
-                    console.log(nUserID.recordset[0])
-                    request.input('userID', mysql.Int, nUserID.recordset[0].nUserID);
+                    const queryUserInformation = "INSERT INTO userInformation(userID) VALUES (@nUserID);";
+                    console.log(queryUserInformation)
+                    // console.log(nUserID.recordset[0])
+                    request.input('nUserID', mysql.Int, userID.recordset[0].nUserID); //Insertamos el nUser en la tabla
                     await request.query(queryUserInformation);
                     await pool.close();
-                    return result.rowsAffected[0];
+                    return result(dataUser);
                 }
                 
                
@@ -57,17 +61,17 @@ const login = async (dbConfig, body, result) => {
         // const sqlQuery = mysql.format(query, [body.email.toLowerCase().trim()]);
         const resultEmail = await request.query(query);
         if(resultEmail){
-            const {recordset} = resultEmail;
-            // console.log(recordset[0].password)
+            // const {recordset} = resultEmail;
+            // console.log(resultEmail.recordset[0].password)
             // console.log("Dentro " ,body);
-            bcrypt.compare(body.password, recordset[0].password).then(res => {
+            bcrypt.compare(body.password, resultEmail.recordset[0].password).then(res => {
                 if (!res) result({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
                 if (res) {
                     //  HACEMOS OTRA CONSULTA PARA DEVOLVER SOLO EL ID DEL USUARIO PARA GUARDARLO EN EL TOKEN
                     const query = "SELECT nUserID FROM users WHERE email = @emailID;";
-                    request.input('emailID', mysql.VarChar, recordset[0].email);
+                    request.input('emailID', mysql.VarChar, resultEmail.recordset[0].email);
                     request.query(query,(err, resID)=>{
-                        if (err) console.log(err);
+                        // if (err) console.log(err);
                         if (resID.recordset.length >= 1) {
                             const user ={
                                 id: resID.recordset[0].nUserID

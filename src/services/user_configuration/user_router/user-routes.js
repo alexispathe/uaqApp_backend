@@ -11,16 +11,17 @@ const { auth } = require('../../../auth/authentication');
 router.post('/register-user', (req, res) => {
     register(dbConfig, req.body, result => {
         // SI el correo ya existe pasara por esta condicion
-        // console.log(result)
-        if(result.code === "ER_DUP_ENTRY") res.json(result);
+        if(result.code === "ER_DUP_ENTRY")res.json(result);
         // Si se guardo con exito entonces se ejecuta esta condicion
-        if(result.affectedRows === 1) res.json();
+        if(result.rowsAffected[0] === 1)  res.json(result)
         
     });
 });
 
 router.post('/login-user', (req, res) => {
     login(dbConfig, req.body, result => {
+        // console.log("Resultado Login ",result)
+        console.log(result)
         res.json(result); //Cuando todo es valido
     })
 })
