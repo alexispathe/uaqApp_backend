@@ -1,35 +1,41 @@
-const mysql = require('mysql');
+const mssql = require('mssql');
 const jwt = require('jsonwebtoken');
-const updateUserInformation = async (mysqlConnect, body, token, pool) => {
+const updateUserInformation = async (dbConfig, body, token, result) => {
     try {
-        // console.log(body)
         const verify = await jwt.verify(token, 'secretkey');
         if (verify) {
             const payload = await jwt.decode(token)
+            // console.log(payload)
             if (payload) {
                 // CHEAR LO DE LA FECHA *************************************+
-                const query = "UPDATE userinformation SET lastName = ?,userName =?, phone =?, country =?, birthDay = ?, address =? WHERE userID = ?;";
-                const sqlQuery = mysql.format(query, [body.lastName, body.userName.toLowerCase().trim(), body.phone, body.country, body.birthDay,  body.address, payload.id]);
-                // console.log(sqlQuery)
-                mysqlConnect.getConnection((err, connection) => {
-                    if (err) pool("Ocurrio un erro al conectarse")
-                    connection.query(sqlQuery, (err, result) => {
-                        if (err && err.code && err.code === "ER_DUP_ENTRY") pool({ err: "ER_DUP_ENTRY", code: 400 });
-                        // console.log(err)
-                        if (result) {
-                            connection.release()
-                            pool(result)
-                        }
-                    })
-                })
+                const query = `UPDATE userinformation SET phone = @phone, expediente = @expediente  WHERE userID = @userID`;
+                const pool = await mssql.connect(dbConfig); //nos conectamos
+                if (pool) {
+                    const request = await pool.request();
+                    request.input('phone', mssql.VarChar, body.phone);
+                    request.input('expediente', mssql.Int, body.expediente);
+                    request.input('userID', mssql.Int, payload.id)
+                    
+                    const dataUser = await request.query(query)
+                    if (dataUser) {
+                        await pool.close();
+                        return result(dataUser);
+                    } else {
+                        await pool.close();
+                        return result(404);
+                    }
+                }
+
+
+
             }
         } else {
-            pool("Ocurrio un error al verificar el token")
-        }
+            result("Error Token")
+        } token
 
     } catch (err) {
-        pool({ code: 401 })
+        result({ code: 401 })
     }
 };
 
-module.exports = {updateUserInformation};
+module.exports = { updateUserInformation };

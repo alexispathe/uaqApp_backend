@@ -27,13 +27,10 @@ router.post('/login-user', (req, res) => {
 })
 router.put('/update-information', auth, (req, res) => {
     try {
-        updateUserInformation(mysqlConnect, req.body, req.token, result => {
-            if (result.err === "ER_DUP_ENTRY") res.json(result);
+        updateUserInformation(dbConfig, req.body, req.token, result => {
+            if (result.rowsAffected && result.rowsAffected[0] === 1) res.json(result); // si los datos son correctos
             else if(result.code === 401){
                 res.json(result)
-            }else{
-                res.json()
-
             }
 
         });
