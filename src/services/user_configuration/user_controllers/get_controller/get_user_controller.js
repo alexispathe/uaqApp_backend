@@ -45,23 +45,29 @@ const getUser = async (dbConfig, token, result) => {
 }
 const getUserAndUserInformation = async (dbConfig, token, result) => {
     try {
-        const pool = await mysql.connect(dbConfig);
-        const request = pool.request();
+
         const verify = await jwt.verify(token, 'secretkey');
         // console.log("verify", verify);
         if (verify) {
             const payload = await jwt.decode(token);
             if (payload) {
-                const query = `SELECT u.name,ui.lastName,ui.userName,ui.profilePicture, ui.birthDay,ui.phone,ui.country,ui.address 
+                const query = `SELECT u.name,u.email, ui.phone, ui.expediente
                                 FROM users as u
                                 INNER JOIN userInformation as ui
                                 ON u.nUserID = ui.userID
-                                WHERE nUserID = @id;`;
-                request.input('id', mysql.Int, payload.id);
-                const user = await request.query(query);
-                console.log(payload.id);
-                result(user);
-                await pool.close();
+                                WHERE nUserID = @id`;
+                const pool = await mysql.connect(dbConfig);
+                if (pool) {
+                    const request = await pool.request();
+                    request.input('id', mysql.Int, payload.id);
+                    const dataUser = await request.query(query);
+                    result(dataUser);
+                    await pool.close();
+                }else{
+                    await pool.close();
+                    return result(404);
+                }
+
             }
         } else {
             result("Ocurrio un error al verificar el token")

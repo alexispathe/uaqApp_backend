@@ -42,12 +42,6 @@ router.put('/update-information', auth, (req, res) => {
 
 
 // METODOS GET
-router.get('/get-users', (req, res) => {
-    getUsers(mysqlConnect, result => {
-        console.log(result)
-        res.json(result);
-    })
-});
 router.get('/get-user', auth, (req, res) => {
     try {
         getUser(dbConfig, req.token, result => {
@@ -57,10 +51,21 @@ router.get('/get-user', auth, (req, res) => {
         console.log(err)
     }
 })
+
+router.get('/get-users', (req, res) => {
+    getUsers(mysqlConnect, result => {
+        console.log(result)
+        res.json(result);
+    })
+});
+
 router.get('/get-user-information', auth, (req, res) => {
     try {
         getUserAndUserInformation(dbConfig, req.token, result => {
+            if (result.rowsAffected && result.rowsAffected[0] === 1) res.json(result); // si los datos son correctos
+            else if(result.code === 401){
                 res.json(result)
+            }
         })
     } catch (err) {
         console.log(err)

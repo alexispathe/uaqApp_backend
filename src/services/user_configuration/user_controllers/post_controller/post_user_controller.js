@@ -6,7 +6,7 @@ const register = async (dbConfig, data, result) => {
         // console.log("Datos ", data)
         if (data.password) {
             // Encriptamos la contraseña
-            const hashed = await bcrypt.hash(data.password, 10);
+            const hashed = await bcrypt.hash(data.password, 5);
             if (hashed) {
                 const pool = await mysql.connect(dbConfig);
                 // Crear una instancia de solicitud
@@ -28,9 +28,10 @@ const register = async (dbConfig, data, result) => {
                     const userID = await request.query(queryNUserID); //buscamos el id del usuario creado con el correo nuevo
 
                     const queryUserInformation = "INSERT INTO userInformation(userID) VALUES (@nUserID);";
-                    console.log(queryUserInformation)
-                    // console.log(nUserID.recordset[0])
-                    request.input('nUserID', mysql.Int, userID.recordset[0].nUserID); //Insertamos el nUser en la tabla
+                    console.log("nUserID del usuario registrado ",userID.recordset[0].nUserID)
+                    // // console.log(nUserID.recordset[0])
+                    const x = await request.input('nUserID', mysql.Int, userID.recordset[0].nUserID); //Insertamos el nUser en la tabla
+                    console.log("Datos del usuario ", x)
                     await request.query(queryUserInformation);
                     await pool.close();
                     return result(dataUser);
@@ -63,7 +64,7 @@ const login = async (dbConfig, body, result) => {
         if(resultEmail){
             // const {recordset} = resultEmail;
             // console.log(resultEmail.recordset[0].password)
-            // console.log("Dentro " ,body);
+            console.log("Dentro " ,resultEmail);
             bcrypt.compare(body.password, resultEmail.recordset[0].password).then(res => {
                 if (!res) result({ status: 404 }); //Esta condicion entra cuando la contraseña no es correcta
                 if (res) {
